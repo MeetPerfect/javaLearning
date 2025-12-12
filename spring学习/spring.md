@@ -922,7 +922,38 @@ public class BookServiceImpl implements BookService{
 <context:component-scan base-package="com.itheima"/>
 ```
 
-<img src="IoC的入门案例.assets/image-20241214175528207.png" alt="image-20241214175528207" style="zoom:67%;" />
+
+
+Spring提供 `@Component` 注解的三个衍生注解
+
++ `@Controller` 用户表现层 `bean` 的定义
+
+  + ```java
+    @Controller
+    public class RestConroller{
+        
+    }
+    ```
+
++ `@Service` 用户业务层 `bean` 的定义
+
+  + ```java
+    @Service
+    public class BookServiceImpl implements BookService{
+        
+    }
+    ```
+
++ `@Repository` 用户数据层 `bean` 的定义
+
+  + ```java
+    @Repository
+    public class BookDaoImpl implements BookDao{
+        
+    }
+    ```
+
+
 
 
 
