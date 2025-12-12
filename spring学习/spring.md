@@ -1068,7 +1068,7 @@ xml方式组件扫描
 
 ### 引用类型
 
-+ 使用@Autowired注解开启自动装配模式(按类型)
++ 使用 `@Autowired` 注解开启自动装配模式(按类型)
 
 <img src="IoC的入门案例.assets/image-20241214182051774.png" alt="image-20241214182051774" style="zoom:67%;" />
 
@@ -1085,7 +1085,7 @@ xml方式组件扫描
 
 ### 加载Properties文件
 
-+ 使用 `@PropertySource` 注解加载properties文件
++ 使用 `@PropertySource` 注解加载 `properties` 文件
 
 <img src="IoC的入门案例.assets/image-20241214182832674.png" alt="image-20241214182832674" style="zoom: 67%;" />
 
@@ -1140,7 +1140,7 @@ public class JdbcConfig{
 }
 ```
 
-+ 使用ComponentScan注解扫描配置类所在的包，加载对应的配置类信息
++ 使用 `ComponentScan` 注解扫描配置类所在的包，加载对应的配置类信息
 
 ```java
 @Configuration
@@ -1177,6 +1177,10 @@ public DataSource dataSource(BookService bookService) {
 ## xml配置与注解配置对比
 
 <img src="IoC的入门案例.assets/image-20241214184942366.png" alt="image-20241214184942366" style="zoom:67%;" />
+
+
+
+
 
 ## Spring整合第三方
 
