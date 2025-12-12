@@ -1022,17 +1022,21 @@ xml方式组件扫描
 
 ## 纯注解开发
 
-+ Spring3.0开启了纯注解开发模式，使用java类代替配置文件，开启了Spring快速开发赛道；
-+ Java类代替了Spring核心配置文件；
++ Spring3.0开启了纯注解开发模式，使用 `java` 类代替配置文件，开启了 `Spring` 快速开发赛道；
++ `Java` 类代替了 `Spring` 核心配置文件；
 
 <img src="IoC的入门案例.assets/image-20241214181335827.png" alt="image-20241214181335827" style="zoom:67%;" />
 
-+ @Configuration注解设定当前类为配置类
-+ @ComponentSacn注解设定扫描路径，此注解只添加一次，多个数据用数组格式；
++ `@Configuration` 注解设定当前类为配置类
 
-<img src="IoC的入门案例.assets/image-20241214181149734.png" alt="image-20241214181149734" style="zoom:67%;" />
++ `@ComponentSacn` 注解设定扫描路径，此注解只添加一次，多个数据用数组格式；
 
-+ AnnotationConfigApplicationContext，容器对象的获取
+  + ```java
+    @ComponentScan({"com.itheima.service", "com.itheima.dao"})
+    ```
+
+
++ `AnnotationConfigApplicationContext` ，容器对象的获取
 
 
 
