@@ -336,7 +336,7 @@ public class BookDaoImpl implements BookDao{
 + 容器关闭前触发bean的销毁
 + 关闭容器的方法
   + 手工关闭容器
-    + `ConfigurableApplicationContext` 接口的 `Close` 方法
+    + `ConfigurableApplicationContext` 接口的 `close` 方法
   + 注册关闭钩子，在虚拟机退出前先关闭容器再退出虚拟机
     + `ConfigurableApplicationContext` 接口 `registerShutdownHook` 操作
 
@@ -505,9 +505,38 @@ public class BookServiceImpl implements BookService {
 
 #### 1. 加载properties配置文件信息
 
+```properties
+jdbc.driver=com.mysql.cj.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:3306/table_account
+jdbc.username=root
+jdbc.password=123456
+```
+
 
 
 #### 2. 开启命名空间方式
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+">
+    <!--    加载properties文件-->
+    <context:property-placeholder location="classpath:jdbc.properties"></context:property-placeholder>
+    <!--    配置数据源信息-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${jdbc.driver}"></property>
+        <property name="url" value="${jdbc.url}"></property>
+        <property name="username" value="${jdbc.username}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+</beans>
+```
 
 
 
