@@ -232,9 +232,9 @@ public class UserDaoFactory{
 <bean id="userDao" factory-method="getUserDao" factory-bean="userFactory"/>
 ```
 
-### 4.  使用FactoryBean实例化
+### 4.  使用 `FactoryBean` 实例化
 
-+ FactoryBean
++ `FactoryBean`
 
 
 
