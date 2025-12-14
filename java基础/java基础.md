@@ -363,6 +363,214 @@ jdk1.7: `ConcurrentHashMap` 的三个属性：`capacity` (数据总个数，每�
 
 
 
+### 面试题
+
+#### 1. 如何保证三个线程顺序执行
+
+在 Java 中，让 **三个线程按固定顺序执行（如 T1 → T2 → T3）** 是一个**非常经典的并发控制问题**。
+
+**核心思想** 
+
+> 线程本身没有顺序，顺序是靠“同步手段”控制的。本质：前一个线程执行完，通知下一个线程执行。
+
+##### 实现方式
+
+###### 1. `join()` 方法
+
+```java
+public class JoinDemo {
+    public static void main(String[] args) throws Exception {
+
+        Thread t1 = new Thread(() -> {
+            System.out.println("线程1执行");
+        });
+
+        Thread t2 = new Thread(() -> {
+            System.out.println("线程2执行");
+        });
+
+        Thread t3 = new Thread(() -> {
+            System.out.println("线程3执行");
+        });
+
+        t1.start();
+        t1.join();   // 等 t1 执行完
+
+        t2.start();
+        t2.join();   // 等 t2 执行完
+
+        t3.start();
+    }
+}
+```
+
+> **特点
+>
+> - ✔ 简单直观
+> - ❌ **只能线性顺序，不能循环**
+> - ❌ 主线程被阻塞
+
+###### 2. `CountDownLatch`（最常用，推荐）
+
+**原理**：
+
+- 线程 A 执行完 → `countDown()`
+- 线程 B 在 `await()` 处等待
+
+```java
+public class CountDownLatchDemo {
+
+    public static void main(String[] args) {
+
+        CountDownLatch latch1 = new CountDownLatch(1);
+        CountDownLatch latch2 = new CountDownLatch(1);
+
+        Thread t1 = new Thread(() -> {
+            System.out.println("线程1执行");
+            latch1.countDown();   // 放行 t2
+        });
+
+        Thread t2 = new Thread(() -> {
+            try {
+                latch1.await();
+                System.out.println("线程2执行");
+                latch2.countDown();  // 放行 t3
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        Thread t3 = new Thread(() -> {
+            try {
+                latch2.await();
+                System.out.println("线程3执行");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        t1.start();
+        t2.start();
+        t3.start();
+    }
+}
+
+```
+
+> 📌 **特点**
+>
+> - ✔ **清晰、可读性好**
+> - ✔ 面试最爱
+> - ❌ **不能复用（一次性）**
+
+
+
+###### 3. ReentrantLock + Condition
+
+适合 **复杂顺序 / 可循环执行**
+
+
+
+```java
+class OrderTask {
+    private final ReentrantLock lock = new ReentrantLock();
+    private final Condition c1 = lock.newCondition();
+    private final Condition c2 = lock.newCondition();
+    private final Condition c3 = lock.newCondition();
+
+    private int state = 1;
+
+    public void print1() throws InterruptedException {
+        lock.lock();
+        try {
+            while (state != 1) c1.await();
+            System.out.println("线程1执行");
+            state = 2;
+            c2.signal();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void print2() throws InterruptedException {
+        lock.lock();
+        try {
+            while (state != 2) c2.await();
+            System.out.println("线程2执行");
+            state = 3;
+            c3.signal();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void print3() throws InterruptedException {
+        lock.lock();
+        try {
+            while (state != 3) c3.await();
+            System.out.println("线程3执行");
+            state = 1;
+            c1.signal();
+        } finally {
+            lock.unlock();
+        }
+    }
+}
+
+```
+
+
+
+> 📌 特点
+>
+> - ✔ **可循环**
+> - ✔ 顺序可控
+> - ❌ 代码复杂
+
+
+
+###### 4. Semaphore 信号量
+
+
+
+```java
+Semaphore s1 = new Semaphore(1);
+Semaphore s2 = new Semaphore(0);
+Semaphore s3 = new Semaphore(0);
+
+Thread t1 = new Thread(() -> {
+    try {
+        s1.acquire();
+        System.out.println("线程1执行");
+        s2.release();
+    } catch (InterruptedException e) {}
+});
+
+Thread t2 = new Thread(() -> {
+    try {
+        s2.acquire();
+        System.out.println("线程2执行");
+        s3.release();
+    } catch (InterruptedException e) {}
+});
+
+Thread t3 = new Thread(() -> {
+    try {
+        s3.acquire();
+        System.out.println("线程3执行");
+    } catch (InterruptedException e) {}
+});
+
+```
+
+
+
+> 📌 特点
+>
+> - ✔ 逻辑非常清晰
+> - ✔ 可扩展
+> - ❌ 不太“Java 面试主流”
+
 
 
 ## Synchronized
