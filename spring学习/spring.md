@@ -1613,7 +1613,7 @@ public class SpringMvcConfig{
 4. 定义一个servlet容器启动的配置类，在里面加载spring的配置
 
 ```java
-public class ServletContainersInitConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
+public class ServletContainersInitConfig extends AbstractDispatcherServletInitializer {
     // 加载springmvc容器配置
     @Override
     protected WebApplicationContext createServletApplicationContext() {
@@ -1635,6 +1635,16 @@ public class ServletContainersInitConfig extends AbstractAnnotationConfigDispatc
     }
 }
 ```
+
+
+
+`AbstractDispatcherServletInitializer` 类是 `SpringMVC` 提供的快速初始化 `Web3.0` 容器的抽象类
+
++ `createServletApplicationContext` 方法，创建 `Servlet` 容器时，加载 `SpringMVC` 对应的 `bean` 并放入 `WebApplicationContext`  对象范围中，而 `WebApplicationContext` 的作用范围为 `ServletContext` 范围，即整个 `Web` 容器范围。
++ `getServletMappings()` 方法，设定 `SpringMVC` 对应的请求映射路径，设置为 `/` 表示拦截所有请求，任意请求都讲转入到 `SpringMVC` 进行处理。
++ `createRootApplicationContext()` 方法，如果创建 `Servlet` 容器时需要加载非 `SpringMVC` 对应的 `bean` ，使用当前方法进行，使用通 `createServletApplicationContext` 方法。
+
+
 
 #### 工作流程
 
