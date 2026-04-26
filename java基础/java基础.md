@@ -48,6 +48,12 @@ private final byte[] value; // 存储字符串数据的容器
 
 
 
+## 泛型
+
+Java编译器通过检查代码中泛型的类型，然后进行类型擦除，再进行编译。
+
+
+
 ## 集合
 
 ### ArrayList
@@ -686,10 +692,10 @@ public class PrintOddEvenTest {
 
 1. 假设在业务代码中使用完 `ThreadLocal` ，`threadLocal Ref` 被回收。
 
-2. 但是因为threadLocalMap 的Entry 强引用了threadLocal，造成threadLocal无法被回收。
-2. 在没有手动删除这个Entry以及CurrentThread依然运行的前提下，始终有强引用链threadRef->currentThread->threadLocalMap->entry，Entry就不会被回收(Entry中包括了ThreadLocal实例和value)，导致Entry内存泄漏
+2. 但是因为`threadLocalMap` 的`Entry` 强引用了 `threadLocal`，造成`threadLocal`无法被回收。
+2. 在没有手动删除这个`Entry`以及`CurrentThread`依然运行的前提下，始终有强引用链 `threadRef`->`currentThread`->`threadLocalMap`->`entry`，`Entry`就不会被回收(`Entry`中包括了`ThreadLocal`实例和`value`)，导致`Entry`内存泄漏
 
-也就是，`ThreadLocalMap` 中的key使用了强引用，是无法完全臂弯内存泄漏的。
+也就是，`ThreadLocalMap` 中的`key`使用了强引用，是无法完全臂弯内存泄漏的。
 
 
 

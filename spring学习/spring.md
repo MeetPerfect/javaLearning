@@ -1523,7 +1523,7 @@ public class ApplicationContextTest {
 4. `@Transaction` 注解需要加在 `public` 的方法上
    1. 原因：spring 为方法创建代理、添加事务通知，前提条件是该方法是 `public`
 5. 父子容器导致的事务失效
-   1. 原因：子容器扫描范围过大，将未加事务的配置的 service 扫描出来
+   1. 原因：子容器扫描范围过大，将未加事务的配置的 `service` 扫描出来
    2. 解法1： 各扫描个的，不图方便
    3. 解法2：不要使用父子容器，所有bean放在同一个容器
 
@@ -1540,8 +1540,6 @@ public class ApplicationContextTest {
    1. 原因：`synchronized` 保证的仅是目标方法的原子性，环绕目标方法的还有 `commit`  等操作，它们并未处于 `sync` 块内
    2. 解法1：`synchronized` 范围应扩大到代理方法调用
    3. 解法2：数据库操作，使用 `select ... for update` 替换 `select` 
-
-
 
 
 
