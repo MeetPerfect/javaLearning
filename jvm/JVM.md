@@ -330,7 +330,170 @@ class Son extends Father {
 
 
 
+## 类加载器
 
 
 
+
+
+
+
+### 自定义类加载器
+
+
+
+#### 实现方式
+
+> + `Java` 提供了抽象类 `Java.lang.ClassLoader`，所有用户自定义的类加载器都应该继承 `ClassLoader` 类。
+>
+> + 在自定义 `ClassLoader` 的子类时，常见两种做法：
+>   + 方式一：重新 `loadClass()` 方法；
+>   + 方式而：重新 `findClass()` 方法 `-->` **推荐** 。
+
+#### 对比
+
+两种方法本质相差不多，`loadClass()` 内部会调用 `findClass()` 方法，但从逻辑上讲，最好不要直接修改 `loadClass()` 的内部逻辑。建议是只在 `findClass()` 中重新自定义类的加载方法，根据参数指定的名字，返回对应的 `Class` 对象的引用。
+
++ `loadClass()` 方法是实现双亲委派模型逻辑的地方，擅自修改该方法会导致模型被破坏，容易造成问题。因此，最好在双亲委派模型框架内部进行小范围的改动，不破坏原有的稳定结构。同时，也避免了重新 `loadClass()` 方法的过程中必须写双亲委派的重复代码，从代码复用性看，不直接修改始终是一个较好的选择。
++ 编写好自定义类加载器，可以在程序中调用 `loadClass` 方法来实现类加载操作
+
+
+
+#### 说明
+
++ 其父类加载器是系统类加载器
++ `JVM` 中的所有类加载都会使用 `java.lang.ClassLoader.loadClass(String)` 接口（自定义加载器并重写 `java.lang.ClassLoader.loadClass(String)` 接口的除外 ），`JDK` 核心类库不例外。
+
+
+
+#### 自定义类加载器代码实现
+
+##### 1. 创建自定义加载器加载的类
+
+```java
+public class Demo1 {
+    
+    public void hot() {
+        System.out.println("hot");
+    }
+}
+```
+
+
+
+##### 2. 创建自定义类加载器并继承 `ClassLoader`
+
+```java
+public class MyClassLoader extends ClassLoader{
+    
+    private String rootDir;	// 类文件所在的根目录
+    
+    public MyClassLoader(String rootDir) {
+        this.rootDir = rootDir;
+    }
+
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        Class<?> clazz = this.findLoadedClass(name);
+
+        FileChannel fileChannel = null;
+        WritableByteChannel outputChannel = null;
+
+        if (null == clazz) {
+            try {
+                // 1. 拼接类路径 → 变成文件路径
+                String classFile = getClassFile(name);
+                // 2. 打开文件输入流
+                FileInputStream fis = new FileInputStream(classFile);
+                fileChannel = fis.getChannel();
+				// 3. 用来把文件内容读到内存
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                outputChannel = Channels.newChannel(baos);
+				// 4. 分配缓冲区
+                ByteBuffer byteBuffer = ByteBuffer.allocateDirect(1024);
+                
+                while (true) {
+                    // 从文件读到缓冲区
+                    int i = fileChannel.read(byteBuffer);
+                    // 读完了就退出
+                    if (i == 0 || i == -1) {
+                        break;
+                    }
+					// 切换缓冲区为读模式
+                    byteBuffer.flip();
+                    // 把缓冲区内容写入内存
+                    outputChannel.write(byteBuffer);
+                    // 清空缓冲区，准备下一次读取
+                    byteBuffer.clear();
+                }
+
+                byte[] byteArray = baos.toByteArray();
+
+                clazz = defineClass(name, byteArray, 0, byteArray.length);
+
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } finally {
+                // 资源关闭
+                try {
+                    if (fileChannel != null) {
+                        fileChannel.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    if (outputChannel != null) {
+                        outputChannel.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        
+        return clazz;
+    }
+
+    private String getClassFile(String name) {
+        return rootDir + "\\" + name.replace('.', '\\') + ".class";
+    }
+}
+```
+
+##### 3. 测试
+
+```java
+public class LoopRun {
+
+    public static void main(String[] args) {
+
+        while (true) {
+            
+            try {
+                MyClassLoader loader = new MyClassLoader("D:\\javaproject\\test1\\SpringTest\\src\\main\\java");
+
+                Class<?> clazz = loader.findClass("com.itheima.a01.Demo1");
+
+                Object demo1 = clazz.newInstance();
+
+                Method method = clazz.getMethod("hot");
+                
+                method.invoke(demo1);
+                
+                Thread.sleep(5000);
+            } catch (Exception e) {
+                System.out.println("not found");
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            } 
+        }
+    }
+}
+```
 
